@@ -1,0 +1,52 @@
+html, body {
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    font-family: stzhongsong;
+}
+
+header, article {
+    width: 80%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    margin-left: 10%;
+}
+
+header {
+    margin-top: 100px;
+    margin-bottom: 100px;
+    position:relative;
+    left:-0.5rem;
+    cursor:default;
+}
+
+    header .now_date {
+        font-size: 4rem;
+    }
+
+    header .now_doing {
+        font-size: 4rem;
+    }
+
+article section {
+    margin: 2.5rem 0 0 0;
+    cursor:pointer;
+}
+
+    article section .title {
+        font-size: 1.75rem;
+        font-weight:bold;
+    }
+
+    article section .sub_title {
+        font-size: 1.5rem;
+        color: rgba(0,0,0,0.8);
+    }
+
+    article section .date {
+        font-size: 1.5rem;
+        font-weight: lighter;
+        color: rgba(0,0,0,0.8);
+    }
