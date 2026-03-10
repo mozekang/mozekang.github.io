@@ -9,10 +9,13 @@
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
-<body data-page="index.html">
+  <body data-page="index.html">
               <header class="site-header">
     <div class="container nav-wrap">
-      <a class="logo" href="index.html">东莞市精基五金制品有限公司</a>
+      <a class="logo" href="index.html" aria-label="东莞市精基五金制品有限公司">
+        <span class="logo-main">东莞市精基五金制品有限公司</span>
+        <span class="logo-sub">HVAC风管与配件工程供应商</span>
+      </a>
       <nav class="main-nav">
         <ul>
           <li><a data-page="index.html" href="index.html">首页</a></li>
@@ -30,22 +33,29 @@
     <section class="hero-static">
       <div class="container hero-static-inner hero-static-inner--single">
         <div class="hero-static-main">
-          <p class="hero-kicker">HVAC Integrated Solution</p>
-          <h1 class="slide-title">金属风喉与HVAC系统一体化方案</h1>
-          <p class="slide-text">东莞市精基五金制品有限公司专注抽气、鲜风、排烟、冷气通风系统工程及相关物料生产，面向香港与大湾区项目提供稳定交付能力。</p>
+          <p class="hero-kicker">Cross-Border HVAC Supply</p>
+          <h1 class="slide-title">内地通风风管与配件供货及工程配套服务</h1>
+          <p class="slide-text">以香港工程项目经验与制造能力为基础，我们面向中国大陆客户提供风管、风口、风阀及配件的定制加工、批量供货与现场配套交付服务。</p>
+          <p class="hero-note">结合香港工程管理习惯与内地施工节奏，建立更稳定的跨区域协同交付机制。</p>
+          <div class="hero-pill-row">
+            <span>香港工程体系沉淀</span>
+            <span>面向内地项目供货</span>
+            <span>资料交付可验收归档</span>
+          </div>
           <div class="hero-actions">
             <a class="btn" href="projects.html">查看工程案例</a>
+            <a class="btn btn-outline" href="contact.html">咨询项目配套</a>
           </div>
         </div>
       </div>
       <a class="btn banner-scroll" href="#products-center">产品中心 ↓</a>
     </section>
 
-    <section class="section">
+    <section class="section section--index section--index-showcase">
       <div class="container">
         <div class="section-head">
           <h2 class="section-title">主要产品</h2>
-          <p class="section-subtitle">Main Products</p>
+          <p class="section-subtitle">按香港项目标准沉淀的通风产品体系</p>
         </div>
         <div class="product-catalog-grid">
           <article class="product-catalog-card">
@@ -64,10 +74,42 @@
       </div>
     </section>
 
-    <section class="section section--muted" id="products-center">
+    <section class="section section--index section--index-why">
+      <div class="container">
+        <div class="section-head">
+          <h2 class="section-title">内地客户为什么选我们</h2>
+          <p class="section-subtitle">以香港工程方法组织内地项目配套，响应与交付更稳妥</p>
+        </div>
+        <div class="advantage-grid">
+          <article class="advantage-card">
+            <span class="advantage-index">01</span>
+            <h3>交付更可控</h3>
+            <p>按项目节奏供货，减少现场等料。</p>
+          </article>
+          <article class="advantage-card">
+            <span class="advantage-index">02</span>
+            <h3>定制更灵活</h3>
+            <p>支持尺寸/材质/法兰/保温等按需加工。</p>
+          </article>
+          <article class="advantage-card">
+            <span class="advantage-index">03</span>
+            <h3>质量更透明</h3>
+            <p>可提供测试与认证资料用于验收/归档。</p>
+          </article>
+          <article class="advantage-card">
+            <span class="advantage-index">04</span>
+            <h3>对接更省心</h3>
+            <p>内地客户专属对接，支持微信/电话快速沟通。</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--muted section--index" id="products-center">
       <div class="container">
         <div class="section-head">
           <h2 class="section-title">部分成功案例</h2>
+          <p class="section-subtitle">既有大型项目交付经验，现将成熟质量体系与跨区域协同能力用于内地客户供货与配套服务。</p>
           <a class="btn-outline btn" href="projects.html">进入案例库</a>
         </div>
         <section class="panel">
@@ -82,10 +124,11 @@
       </div>
     </section>
 
-    <section class="section">
+    <section class="section section--index section--index-certs">
       <div class="container">
         <div class="section-head">
           <h2 class="section-title">认证展示</h2>
+          <p class="section-subtitle">按国际与香港常用测试标准输出资料，便于内地项目验收管理</p>
           <a class="btn-outline btn" href="certifications.html">技术能力与认证</a>
         </div>
         <div class="certs-grid">
@@ -135,6 +178,9 @@
         <p>电话：(852)26138003</p>
         <p>电邮：ckmetalhk@gmail.com</p>
       </div>
+    </div>
+    <div class="container">
+      <p class="site-built-date"><span>官网建立日期</span><strong>2025年12月5日</strong></p>
     </div>
   </footer>
 </body>
