@@ -1,196 +1,114 @@
-﻿<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>HVAC系统及金属风喉解决方案专家 | 首页</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css">
-</head>
-  <body data-page="index.html">
-              <header class="site-header">
-    <div class="container nav-wrap">
-      <a class="logo" href="index.html" aria-label="东莞市精基五金制品有限公司">
-        <span class="logo-main">东莞市精基五金制品有限公司</span>
-        <span class="logo-sub">HVAC风管与配件工程供应商</span>
-      </a>
-      <nav class="main-nav">
-        <ul>
-          <li><a data-page="index.html" href="index.html">首页</a></li>
-          <li><a data-page="about.html" href="about.html">公司简介</a></li>
-          <li><a data-page="products.html" href="products.html">产品中心</a></li>
-          <li><a data-page="projects.html" href="projects.html">工程案例</a></li>
-          <li><a data-page="certifications.html" href="certifications.html">技术能力</a></li>
-          <li><a data-page="contact.html" href="contact.html">联系我们</a></li>
-        </ul>
-      </nav>
-    </div>
-  </header>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#08080d" />
+    <title>聚会体验反馈</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./assets/css/styles.css" />
+  </head>
+  <body>
+    <div class="grain" aria-hidden="true"></div>
+    <main id="app" class="app-shell">
+      <section class="screen is-active" data-screen="intro" aria-labelledby="intro-title">
+        <div class="intro-copy">
+          <p class="kicker" data-config="eventName">聚会反馈</p>
+          <h1 id="intro-title">今晚不会只停在今晚。</h1>
+          <p class="subtitle">
+            <span data-config="movieName">电影之夜</span>
+            <span class="subtitle-dot"></span>
+            用 60 秒，把这一场聚会变成下一场的参数。
+          </p>
+        </div>
+        <div class="privacy-note">
+          为了改进聚会体验，本页面会记录提交时间和每题停留时长，用于判断哪些问题更难回答、哪些环节更值得优化。不会公开展示，也不会用于对个人做负面评价。
+        </div>
+        <button class="primary-action" type="button" data-action="start">开始</button>
+      </section>
 
-  <main class="page-main">
-    <section class="hero-static">
-      <div class="container hero-static-inner hero-static-inner--single">
-        <div class="hero-static-main">
-          <p class="hero-kicker">Cross-Border HVAC Supply</p>
-          <h1 class="slide-title">内地通风风管与配件供货及工程配套服务</h1>
-          <p class="slide-text">以香港工程项目经验与制造能力为基础，我们面向中国大陆客户提供风管、风口、风阀及配件的定制加工、批量供货与现场配套交付服务。</p>
-          <p class="hero-note">结合香港工程管理习惯与内地施工节奏，建立更稳定的跨区域协同交付机制。</p>
-          <div class="hero-pill-row">
-            <span>香港工程体系沉淀</span>
-            <span>面向内地项目供货</span>
-            <span>资料交付可验收归档</span>
+      <section class="screen" data-screen="identity" aria-labelledby="identity-title">
+        <div class="screen-head">
+          <p class="step-label">IDENTITY</p>
+          <h2 id="identity-title">选择今晚的你</h2>
+          <p>点一下就好，像选一张片尾角色卡。</p>
+        </div>
+        <div class="identity-grid" data-role="identity-list"></div>
+      </section>
+
+      <section class="screen" data-screen="q1" aria-labelledby="q1-title">
+        <div class="question-card">
+          <div class="screen-head">
+            <p class="step-label">01 / KEEP</p>
+            <h2 id="q1-title">今晚最值得保留的是什么？</h2>
+            <p>最多选 2 个。</p>
           </div>
-          <div class="hero-actions">
-            <a class="btn" href="projects.html">查看工程案例</a>
-            <a class="btn btn-outline" href="contact.html">咨询项目配套</a>
+          <div class="option-grid" data-role="q1-options"></div>
+          <p class="inline-hint" data-role="q1-hint" aria-live="polite"></p>
+          <button class="primary-action compact" type="button" data-action="next" data-next="q2">下一题</button>
+        </div>
+      </section>
+
+      <section class="screen" data-screen="q2" aria-labelledby="q2-title">
+        <div class="question-card">
+          <div class="screen-head">
+            <p class="step-label">02 / TUNE</p>
+            <h2 id="q2-title">今晚最需要调参的是什么？</h2>
+            <p>最多选 2 个。“没有明显问题”会单独成立。</p>
           </div>
+          <div class="option-grid" data-role="q2-options"></div>
+          <p class="inline-hint" data-role="q2-hint" aria-live="polite"></p>
+          <button class="primary-action compact" type="button" data-action="next" data-next="q3">下一题</button>
         </div>
-      </div>
-      <a class="btn banner-scroll" href="#products-center">产品中心 ↓</a>
-    </section>
+      </section>
 
-    <section class="section section--index section--index-showcase">
-      <div class="container">
-        <div class="section-head">
-          <h2 class="section-title">主要产品</h2>
-          <p class="section-subtitle">按香港项目标准沉淀的通风产品体系</p>
+      <section class="screen" data-screen="q3" aria-labelledby="q3-title">
+        <div class="question-card">
+          <div class="screen-head">
+            <p class="step-label">03 / RETURN</p>
+            <h2 id="q3-title">你下次再来的可能性更接近？</h2>
+            <p>选一个最接近的状态。</p>
+          </div>
+          <div class="option-grid single" data-role="q3-options"></div>
+          <div class="factor-panel" data-role="factor-panel" hidden>
+            <p>主要影响因素</p>
+            <div class="factor-grid" data-role="factor-options"></div>
+          </div>
+          <p class="inline-hint" data-role="q3-hint" aria-live="polite"></p>
+          <button class="primary-action compact" type="button" data-action="next" data-next="open">下一题</button>
         </div>
-        <div class="product-catalog-grid">
-          <article class="product-catalog-card">
-            <h3>风管系列</h3>
-            <p>不鏽钢和镀锌铁皮矩形风管、圆形风管、椭圆形风管。</p>
-          </article>
-          <article class="product-catalog-card">
-            <h3>风咀与阀门系列</h3>
-            <p>各种类型风咀柏叶、防火闸、音量控制阀、止回阀、空气调节阀、修理门。</p>
-          </article>
-          <article class="product-catalog-card">
-            <h3>保温与配件系列</h3>
-            <p>隔璧网、玻璃纤维绝缘、酚醛泡沫、岩棉、风喉软管、管道夹具、管道底担、螺丝、丝帽、丝杆等。</p>
-          </article>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="section section--index section--index-why">
-      <div class="container">
-        <div class="section-head">
-          <h2 class="section-title">内地客户为什么选我们</h2>
-          <p class="section-subtitle">以香港工程方法组织内地项目配套，响应与交付更稳妥</p>
+      <section class="screen" data-screen="open" aria-labelledby="open-title">
+        <div class="question-card">
+          <div class="screen-head">
+            <p class="step-label">04 / MOMENT</p>
+            <h2 id="open-title">请写下今晚一个具体瞬间</h2>
+            <p>不用写长，一个画面也可以。</p>
+          </div>
+          <textarea
+            class="moment-input"
+            data-role="moment-input"
+            maxlength="600"
+            placeholder="可以是一句话、一个画面、一次尴尬、一次被击中的感觉。越具体越有用，不需要写长。"
+          ></textarea>
+          <p class="inline-hint" data-role="open-hint" aria-live="polite"></p>
+          <button class="primary-action compact" type="button" data-action="submit">提交</button>
         </div>
-        <div class="advantage-grid">
-          <article class="advantage-card">
-            <span class="advantage-index">01</span>
-            <h3>交付更可控</h3>
-            <p>按项目节奏供货，减少现场等料。</p>
-          </article>
-          <article class="advantage-card">
-            <span class="advantage-index">02</span>
-            <h3>定制更灵活</h3>
-            <p>支持尺寸/材质/法兰/保温等按需加工。</p>
-          </article>
-          <article class="advantage-card">
-            <span class="advantage-index">03</span>
-            <h3>质量更透明</h3>
-            <p>可提供测试与认证资料用于验收/归档。</p>
-          </article>
-          <article class="advantage-card">
-            <span class="advantage-index">04</span>
-            <h3>对接更省心</h3>
-            <p>内地客户专属对接，支持微信/电话快速沟通。</p>
-          </article>
-        </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="section section--muted section--index" id="products-center">
-      <div class="container">
-        <div class="section-head">
-          <h2 class="section-title">部分成功案例</h2>
-          <p class="section-subtitle">既有大型项目交付经验，现将成熟质量体系与跨区域协同能力用于内地客户供货与配套服务。</p>
-          <a class="btn-outline btn" href="projects.html">进入案例库</a>
-        </div>
-        <section class="panel">
-          <table class="param-table case-preview-table">
-            <tr><th>项目</th><th>年份</th><th>承建商</th><th>工种</th></tr>
-            <tr><td>启德体育园</td><td>2021-2025</td><td>协兴工程有限公司</td><td>MVAC Supply &amp; install work</td></tr>
-            <tr><td>新意网数据中心</td><td>2018-2020</td><td>新菱工程有限公司</td><td>MVAC Supply &amp; install work</td></tr>
-            <tr><td>养和东区医疗中心</td><td>2018</td><td>安乐工程有限公司</td><td>MVAC Supply &amp; install work</td></tr>
-            <tr><td>中央图书馆</td><td>1997-2001</td><td>和兴机电工程有限公司</td><td>MVAC supply and install work</td></tr>
-          </table>
-        </section>
-      </div>
-    </section>
+      <section class="screen success-screen" data-screen="success" aria-labelledby="success-title">
+        <div class="projector-line" aria-hidden="true"></div>
+        <p class="step-label">SENT</p>
+        <h2 id="success-title">收到。</h2>
+        <p>今晚会进入下一场的调参系统。</p>
+        <p>如果有某个瞬间值得被保留，它不会白白消失。</p>
+      </section>
+    </main>
 
-    <section class="section section--index section--index-certs">
-      <div class="container">
-        <div class="section-head">
-          <h2 class="section-title">认证展示</h2>
-          <p class="section-subtitle">按国际与香港常用测试标准输出资料，便于内地项目验收管理</p>
-          <a class="btn-outline btn" href="certifications.html">技术能力与认证</a>
-        </div>
-        <div class="certs-grid">
-          <article class="cert-card">
-            <div class="media"><img src="c1.png" alt="DW144 认证预览"></div>
-            <div class="card-body">
-              <h3>DW144 测试报告</h3>
-              <p class="tag-line">风管漏风等级验证</p>
-            </div>
-            
-          </article>
-          <article class="cert-card">
-            <div class="media"><img src="c2.png" alt="BS/EN1751 认证预览"></div>
-            <div class="card-body">
-              <h3>BS/EN1751 测试</h3>
-              <p class="tag-line">风阀性能与密闭性验证</p>
-            </div>
-            
-          </article>
-          <article class="cert-card">
-            <div class="media"><img src="c3.png" alt="质量管理体系预览"></div>
-            <div class="card-body">
-              <h3>已通过GIC认证</h3>
-            </div>
-            
-          </article>
-        </div>
-      </div>
-    </section>
-  </main>
-
-    <footer class="site-footer">
-    <div class="container footer-grid">
-      <div>
-        <p class="footer-title">东莞市精基五金制品有限公司</p>
-        <p>专营抽气、鲜风、排烟、冷气通风系统工程及相关物料生产。</p>
-      </div>
-      <div>
-        <p class="footer-title">东莞厂房</p>
-        <p>地址：广东东莞市石碣镇庆丰西路6号深莞智造产业园C区C7号厂房</p>
-        <p>直线电话：82005018</p>
-        <p>传真：(0769)81338078</p>
-      </div>
-      <div>
-        <p class="footer-title">香港办事处</p>
-        <p>地址：香港九龙荔枝角青山道688号嘉名大厦6楼C座2室</p>
-        <p>电话：(852)26138003</p>
-        <p>电邮：ckmetalhk@gmail.com</p>
-      </div>
-    </div>
-    <div class="container">
-      <p class="site-built-date"><span>官网建立日期</span><strong>2025年12月5日</strong></p>
-    </div>
-  </footer>
-</body>
+    <script src="./config.js"></script>
+    <script src="./assets/js/app.js"></script>
+  </body>
 </html>
-
-
-
-
-
-
-
-
-
