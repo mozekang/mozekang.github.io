@@ -2,23 +2,21 @@
   "use strict";
 
   const config = window.FEEDBACK_CONFIG || {};
-  const storageKey = `party-feedback:${config.eventId || "default"}`;
   const nowIso = () => new Date().toISOString();
   const nowMs = () => Date.now();
+  const steps = ["intro", "identity", "q1", "q2", "q3", "open", "success"];
 
   const questionMeta = {
     q1: {
       id: "keep",
-      max: 2,
       type: "multi",
-      options: ["电影选择", "破冰问题", "一对一聊天", "放映后的讨论", "酒水/微醺感", "空间/灯光/音乐", "人的匹配度", "某个意外瞬间"]
+      options: ["电影本身", "有深度的对话", "环节安排", "某个人", "酒和微醺感", "空间、灯光、音乐"]
     },
     q2: {
       id: "tune",
-      max: 2,
       type: "multi",
-      exclusive: "没有明显问题",
-      options: ["刚到场时有点尴尬", "放映前等待不够自然", "破冰问题不够好进入", "电影讨论有点散", "话题太浅", "话题太重", "酒水/零食/空间舒适度", "结束阶段有点松散", "没有明显问题"]
+      exclusive: "没有什么明显问题",
+      options: ["刚到场时不知道做什么", "观影体验不行", "破冰问题不够好", "电影讨论不足", "整体聊的话题太浅", "主理人令我不舒服", "酒水 / 零食 / 空间舒适度可以更好", "结束得有点平淡", "没有什么明显问题"]
     },
     q3: {
       id: "returnIntent",
@@ -32,7 +30,7 @@
     }
   };
 
-  const initialState = {
+  const state = {
     currentStep: "intro",
     event: {
       eventId: config.eventId || "",
@@ -58,31 +56,19 @@
     hasPromptedMoment: false
   };
 
-  let state = restoreState();
   let isSubmitting = false;
 
   document.addEventListener("DOMContentLoaded", init);
 
   function init() {
-    bindConfigText();
+    document.title = `${config.eventName || "聚会"}反馈`;
     renderIdentities();
     renderQuestion("q1", "[data-role='q1-options']");
     renderQuestion("q2", "[data-role='q2-options']");
     renderQuestion("q3", "[data-role='q3-options']");
     renderFactors();
     bindGlobalActions();
-    restoreInputValues();
-    showScreen(state.currentStep || "intro", { restore: true });
-  }
-
-  function bindConfigText() {
-    document.querySelectorAll("[data-config='eventName']").forEach((node) => {
-      node.textContent = config.eventName || "聚会反馈";
-    });
-    document.querySelectorAll("[data-config='movieName']").forEach((node) => {
-      node.textContent = config.movieName || "电影之夜";
-    });
-    document.title = `${config.eventName || "聚会"}反馈`;
+    showScreen("intro", { restore: true });
   }
 
   function renderIdentities() {
@@ -90,22 +76,21 @@
     const identities = [...(config.identities || [])];
     if (config.includeAnonymous !== false) identities.push("匿名反馈");
     list.innerHTML = "";
-    identities.slice(0, 8).forEach((name, index) => {
+
+    identities.slice(0, 8).forEach((name) => {
       const button = document.createElement("button");
       button.type = "button";
       button.className = "identity-card";
       button.dataset.identity = name;
-      button.innerHTML = `<span>ROLE ${String(index + 1).padStart(2, "0")}</span><strong>${escapeHtml(name)}</strong>`;
+      button.innerHTML = `<strong>${escapeHtml(name)}</strong>`;
       button.addEventListener("click", () => {
         state.answers.identity = name;
         state.timings.identity_selected_time = nowIso();
-        saveState();
         markSelected(".identity-card", "identity", name);
-        setTimeout(() => showScreen("q1"), 160);
+        clearHint("identity");
       });
       list.appendChild(button);
     });
-    markSelected(".identity-card", "identity", state.answers.identity);
   }
 
   function renderQuestion(key, selector) {
@@ -122,7 +107,6 @@
       button.addEventListener("click", () => selectOption(key, label));
       host.appendChild(button);
     });
-    paintQuestion(key);
   }
 
   function renderFactors() {
@@ -137,42 +121,50 @@
       button.addEventListener("click", () => {
         recordFirstInteraction("q3");
         toggleValue(state.answers.q3Factors, label, 2);
-        saveState();
         paintFactors();
       });
       host.appendChild(button);
     });
-    paintFactors();
   }
 
   function bindGlobalActions() {
+    document.addEventListener("dblclick", (event) => event.preventDefault(), { passive: false });
     document.querySelector("[data-action='start']").addEventListener("click", () => showScreen("identity"));
-
-    document.querySelectorAll("[data-action='next']").forEach((button) => {
-      button.addEventListener("click", () => {
-        const next = button.dataset.next;
-        const current = state.currentStep;
-        if (!validateStep(current)) return;
-        finishQuestion(current);
-        showScreen(next);
-      });
-    });
+    document.querySelector("[data-action='side-prev']").addEventListener("click", goPrevious);
+    document.querySelector("[data-action='side-next']").addEventListener("click", goNext);
 
     const momentInput = document.querySelector("[data-role='moment-input']");
     momentInput.addEventListener("input", () => {
       recordFirstInteraction("open");
       state.answers.moment = momentInput.value;
-      saveState();
+      resizeMomentInput(momentInput);
     });
+    resizeMomentInput(momentInput);
 
-    document.querySelector("[data-action='submit']").addEventListener("click", submitFeedback);
+  }
+
+  function goPrevious() {
+    const index = steps.indexOf(state.currentStep);
+    if (index <= 0) return;
+    showScreen(steps[index - 1]);
+  }
+
+  function goNext() {
+    const index = steps.indexOf(state.currentStep);
+    if (state.currentStep === "open") {
+      submitFeedback();
+      return;
+    }
+    if (index < 0 || index >= steps.length - 2) return;
+    if (!validateStep(state.currentStep)) return;
+    finishQuestion(state.currentStep);
+    showScreen(steps[index + 1]);
   }
 
   function selectOption(key, value) {
     recordFirstInteraction(key);
     const meta = questionMeta[key];
-    const hint = document.querySelector(`[data-role='${key}-hint']`);
-    hint.textContent = "";
+    clearHint(key);
 
     if (meta.type === "single") {
       state.answers[key] = value;
@@ -184,14 +176,10 @@
       } else {
         const withoutExclusive = meta.exclusive ? selected.filter((item) => item !== meta.exclusive) : selected;
         state.answers[key] = withoutExclusive;
-        const added = toggleValue(state.answers[key], value, meta.max);
-        if (!added && !state.answers[key].includes(value)) {
-          hint.textContent = `最多选 ${meta.max} 个。`;
-        }
+        toggleValue(state.answers[key], value, 2);
       }
     }
 
-    saveState();
     paintQuestion(key);
   }
 
@@ -201,8 +189,10 @@
       list.splice(index, 1);
       return true;
     }
-    if (max && list.length >= max) return false;
     list.push(value);
+    if (max && list.length > max) {
+      list.shift();
+    }
     return true;
   }
 
@@ -235,8 +225,15 @@
     });
     state.currentStep = name;
     if (!options.restore && questionMeta[name]) startQuestion(name);
-    saveState();
-    window.scrollTo({ top: 0, behavior: "auto" });
+    updateArrows(name);
+  }
+
+  function updateArrows(name) {
+    const left = document.querySelector("[data-action='side-prev']");
+    const right = document.querySelector("[data-action='side-next']");
+    const index = steps.indexOf(name);
+    left.classList.toggle("is-visible", index > 0 && name !== "success");
+    right.classList.toggle("is-visible", index > 0 && index <= steps.indexOf("open"));
   }
 
   function startQuestion(key) {
@@ -269,22 +266,24 @@
     timing.think_before_first_interaction_ms = timing.first_interaction_ms && timing.question_view_ms
       ? timing.first_interaction_ms - timing.question_view_ms
       : null;
-    saveState();
   }
 
   function validateStep(step) {
-    const hint = document.querySelector(`[data-role='${step}-hint']`);
-    if (hint) hint.textContent = "";
+    clearHint(step);
+    if (step === "identity" && !state.answers.identity) {
+      setHint(step, "先选一个称呼。");
+      return false;
+    }
     if (step === "q1" && state.answers.q1.length === 0) {
-      hint.textContent = "选一个最想保留的就可以。";
+      setHint(step, "选一个最想保留的就可以。");
       return false;
     }
     if (step === "q2" && state.answers.q2.length === 0) {
-      hint.textContent = "选一个需要调参的点，或者选“没有明显问题”。";
+      setHint(step, "选一个最需要调整的地方就行");
       return false;
     }
     if (step === "q3" && !state.answers.q3) {
-      hint.textContent = "选一个最接近的状态。";
+      setHint(step, "选一个最接近的状态。");
       return false;
     }
     return true;
@@ -292,24 +291,19 @@
 
   async function submitFeedback() {
     if (isSubmitting) return;
-    const hint = document.querySelector("[data-role='open-hint']");
-    hint.textContent = "";
+    clearHint("open");
 
     if (!state.answers.moment.trim() && !state.hasPromptedMoment) {
       state.hasPromptedMoment = true;
-      saveState();
-      hint.textContent = "一个具体瞬间会非常有帮助，哪怕只有一句。再点一次可直接提交。";
+      setHint("open", "一个具体瞬间会非常有帮助，哪怕只有一个词。");
       return;
     }
 
     finishQuestion("open");
+    state.answers.q3 = state.answers.q3 || "未选择";
     state.timings.submitted_time = nowIso();
     state.timings.total_duration_ms = nowMs() - state.timings.page_open_ms;
-    saveState();
 
-    const submitButton = document.querySelector("[data-action='submit']");
-    submitButton.disabled = true;
-    submitButton.textContent = "正在提交...";
     isSubmitting = true;
 
     try {
@@ -319,14 +313,11 @@
         body: JSON.stringify(buildPayload())
       });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      sessionStorage.removeItem(storageKey);
       showScreen("success");
     } catch (error) {
-      hint.textContent = "网络没有接上，内容还在。请稍后重试。";
+      showScreen("success");
     } finally {
       isSubmitting = false;
-      submitButton.disabled = false;
-      submitButton.textContent = "提交";
     }
   }
 
@@ -363,42 +354,13 @@
     };
   }
 
-  function restoreInputValues() {
-    document.querySelector("[data-role='moment-input']").value = state.answers.moment || "";
-    ["q1", "q2", "q3"].forEach(paintQuestion);
-    paintFactors();
+  function setHint(key, message) {
+    const hint = document.querySelector(`[data-role='${key}-hint']`);
+    if (hint) hint.textContent = message;
   }
 
-  function saveState() {
-    try {
-      sessionStorage.setItem(storageKey, JSON.stringify(state));
-    } catch (error) {
-      // Session persistence is best-effort; feedback can still be submitted.
-    }
-  }
-
-  function restoreState() {
-    try {
-      const raw = sessionStorage.getItem(storageKey);
-      if (!raw) return clone(initialState);
-      return mergeState(clone(initialState), JSON.parse(raw));
-    } catch (error) {
-      return clone(initialState);
-    }
-  }
-
-  function mergeState(base, saved) {
-    return {
-      ...base,
-      ...saved,
-      event: { ...base.event, ...(saved.event || {}) },
-      answers: { ...base.answers, ...(saved.answers || {}) },
-      timings: {
-        ...base.timings,
-        ...(saved.timings || {}),
-        questions: { ...base.timings.questions, ...((saved.timings && saved.timings.questions) || {}) }
-      }
-    };
+  function clearHint(key) {
+    setHint(key, "");
   }
 
   function escapeHtml(value) {
@@ -410,8 +372,8 @@
       .replace(/'/g, "&#039;");
   }
 
-  function clone(value) {
-    if (typeof structuredClone === "function") return structuredClone(value);
-    return JSON.parse(JSON.stringify(value));
+  function resizeMomentInput(input) {
+    input.style.height = "auto";
+    input.style.height = `${input.scrollHeight}px`;
   }
 })();
