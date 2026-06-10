@@ -2,8 +2,11 @@
 <html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-    <meta name="theme-color" content="#08080d" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#090705" />
     <title>聚会体验反馈</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -11,65 +14,60 @@
     <link rel="stylesheet" href="./assets/css/styles.css" />
   </head>
   <body>
-    <div class="grain" aria-hidden="true"></div>
     <main id="app" class="app-shell">
-      <section class="screen is-active" data-screen="intro" aria-labelledby="intro-title">
+      <section class="screen is-active intro-screen" data-screen="intro" aria-labelledby="intro-title">
         <div class="intro-copy">
-          <p class="kicker" data-config="eventName">聚会反馈</p>
-          <h1 id="intro-title">今晚不会只停在今晚。</h1>
-          <p class="subtitle">
-            <span data-config="movieName">电影之夜</span>
-            <span class="subtitle-dot"></span>
-            用 60 秒，把这一场聚会变成下一场的参数。
-          </p>
+          <h1 id="intro-title" class="home-title">
+            <span>一年</span>
+            <span>只有52次</span>
+            <span>改进机会</span>
+          </h1>
+          <p class="home-subtitle">我会重视每一条反馈</p>
         </div>
-        <div class="privacy-note">
-          为了改进聚会体验，本页面会记录提交时间和每题停留时长，用于判断哪些问题更难回答、哪些环节更值得优化。不会公开展示，也不会用于对个人做负面评价。
-        </div>
-        <button class="primary-action" type="button" data-action="start">开始</button>
+        <button class="primary-action intro-action" type="button" data-action="start">
+          <span>帮助改进</span>
+          <span class="action-icon" aria-hidden="true"></span>
+        </button>
       </section>
 
-      <section class="screen" data-screen="identity" aria-labelledby="identity-title">
+      <section class="screen identity-screen" data-screen="identity" aria-labelledby="identity-title">
         <div class="screen-head">
-          <p class="step-label">IDENTITY</p>
-          <h2 id="identity-title">选择今晚的你</h2>
-          <p>点一下就好，像选一张片尾角色卡。</p>
+          <h2 id="identity-title">你的称呼</h2>
         </div>
         <div class="identity-grid" data-role="identity-list"></div>
+        <p class="inline-hint" data-role="identity-hint" aria-live="polite"></p>
       </section>
 
       <section class="screen" data-screen="q1" aria-labelledby="q1-title">
         <div class="question-card">
           <div class="screen-head">
-            <p class="step-label">01 / KEEP</p>
-            <h2 id="q1-title">今晚最值得保留的是什么？</h2>
-            <p>最多选 2 个。</p>
+            <h2 id="q1-title" class="question-title">
+              <span>今晚哪个部分</span>
+              <span>对你来说最加分？</span>
+            </h2>
           </div>
           <div class="option-grid" data-role="q1-options"></div>
           <p class="inline-hint" data-role="q1-hint" aria-live="polite"></p>
-          <button class="primary-action compact" type="button" data-action="next" data-next="q2">下一题</button>
         </div>
       </section>
 
       <section class="screen" data-screen="q2" aria-labelledby="q2-title">
         <div class="question-card">
           <div class="screen-head">
-            <p class="step-label">02 / TUNE</p>
-            <h2 id="q2-title">今晚最需要调参的是什么？</h2>
-            <p>最多选 2 个。“没有明显问题”会单独成立。</p>
+            <h2 id="q2-title" class="question-title">
+              <span>今晚哪个部分</span>
+              <span>让你没那么舒服？</span>
+            </h2>
           </div>
           <div class="option-grid" data-role="q2-options"></div>
           <p class="inline-hint" data-role="q2-hint" aria-live="polite"></p>
-          <button class="primary-action compact" type="button" data-action="next" data-next="q3">下一题</button>
         </div>
       </section>
 
       <section class="screen" data-screen="q3" aria-labelledby="q3-title">
         <div class="question-card">
           <div class="screen-head">
-            <p class="step-label">03 / RETURN</p>
-            <h2 id="q3-title">你下次再来的可能性更接近？</h2>
-            <p>选一个最接近的状态。</p>
+            <h2 id="q3-title" class="question-title">你感觉下次还想来吗？</h2>
           </div>
           <div class="option-grid single" data-role="q3-options"></div>
           <div class="factor-panel" data-role="factor-panel" hidden>
@@ -77,36 +75,50 @@
             <div class="factor-grid" data-role="factor-options"></div>
           </div>
           <p class="inline-hint" data-role="q3-hint" aria-live="polite"></p>
-          <button class="primary-action compact" type="button" data-action="next" data-next="open">下一题</button>
         </div>
       </section>
 
       <section class="screen" data-screen="open" aria-labelledby="open-title">
-        <div class="question-card">
+        <div class="question-card open-question-card">
           <div class="screen-head">
-            <p class="step-label">04 / MOMENT</p>
-            <h2 id="open-title">请写下今晚一个具体瞬间</h2>
-            <p>不用写长，一个画面也可以。</p>
+            <h2 id="open-title" class="question-title open-title">
+              <span>最后</span>
+              <span>今晚如果只能留下</span>
+              <span>一个画面 / 一句话 /</span>
+              <span>一个感受 / 一个脑洞</span>
+              <span>你会留下什么？</span>
+            </h2>
           </div>
           <textarea
             class="moment-input"
             data-role="moment-input"
             maxlength="600"
-            placeholder="可以是一句话、一个画面、一次尴尬、一次被击中的感觉。越具体越有用，不需要写长。"
+            rows="1"
+            placeholder=""
           ></textarea>
           <p class="inline-hint" data-role="open-hint" aria-live="polite"></p>
-          <button class="primary-action compact" type="button" data-action="submit">提交</button>
         </div>
       </section>
 
       <section class="screen success-screen" data-screen="success" aria-labelledby="success-title">
-        <div class="projector-line" aria-hidden="true"></div>
-        <p class="step-label">SENT</p>
-        <h2 id="success-title">收到。</h2>
-        <p>今晚会进入下一场的调参系统。</p>
-        <p>如果有某个瞬间值得被保留，它不会白白消失。</p>
+        <div class="success-content">
+          <div class="projector-line" aria-hidden="true"></div>
+          <p class="step-label">SENT</p>
+          <h2 id="success-title">收到<span class="tight-period">。</span></h2>
+          <div class="success-details">
+            <p>
+              <span>我希望为你打造出</span>
+              <span>这个城市最舒服的聚会</span>
+            </p>
+            <p class="success-note">期待下次见</p>
+            <img class="success-logo" src="./logo.png" alt="" onerror="this.hidden=true" />
+          </div>
+        </div>
       </section>
     </main>
+
+    <button class="side-arrow side-arrow-left" type="button" data-action="side-prev" aria-label="上一页"></button>
+    <button class="side-arrow side-arrow-right" type="button" data-action="side-next" aria-label="下一页"></button>
 
     <script src="./config.js"></script>
     <script src="./assets/js/app.js"></script>
