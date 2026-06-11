@@ -14,7 +14,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
-    <link rel="stylesheet" href="./assets/css/styles.css?v=20260610-2" />
+    <link rel="stylesheet" href="./assets/css/styles.css?v=20260611-1" />
   </head>
   <body>
     <main id="app" class="app-shell">
@@ -46,7 +46,7 @@
           <div class="screen-head">
             <h2 id="q1-title" class="question-title">
               <span>今晚哪个部分</span>
-              <span>对你来说最加分？</span>
+              <span>对你来说很加分？</span>
             </h2>
           </div>
           <div class="option-grid" data-role="q1-options"></div>
@@ -67,13 +67,13 @@
         </div>
       </section>
 
-      <section class="screen" data-screen="q3" aria-labelledby="q3-title">
+      <section class="screen q3-screen" data-screen="q3" aria-labelledby="q3-title">
         <div class="question-card">
           <div class="screen-head">
             <h2 id="q3-title" class="question-title">你感觉下次还想来吗？</h2>
           </div>
           <div class="option-grid single" data-role="q3-options"></div>
-          <div class="factor-panel" data-role="factor-panel" hidden>
+          <div class="factor-panel" data-role="factor-panel">
             <p>主要影响因素</p>
             <div class="factor-grid" data-role="factor-options"></div>
           </div>
@@ -86,10 +86,9 @@
           <div class="screen-head">
             <h2 id="open-title" class="question-title open-title">
               <span>最后</span>
-              <span>今晚如果只能留下</span>
-              <span>一个画面 / 一句话 /</span>
-              <span>一个感受 / 一个脑洞</span>
-              <span>你会留下什么？</span>
+              <span>今晚如果只能记住</span>
+              <span>一个画面 / 一句话</span>
+              <span>你会记住什么？</span>
             </h2>
           </div>
           <textarea
@@ -107,13 +106,13 @@
         <div class="success-content">
           <div class="projector-line" aria-hidden="true"></div>
           <p class="step-label">SENT</p>
-          <h2 id="success-title">收到<span class="tight-period">。</span></h2>
+          <h2 id="success-title">收到</h2>
           <div class="success-details">
             <p>
               <span>我希望为你打造出</span>
-              <span>这个城市最舒服的聚会</span>
+              <span>打动人心的聚会</span>
             </p>
-            <p class="success-note">期待下次见</p>
+            <p class="success-note" data-role="success-note">期待下次见</p>
             <img class="success-logo" src="./logo.png?v=20260610-2" alt="" onerror="this.hidden=true" />
           </div>
         </div>
@@ -124,6 +123,6 @@
     <button class="side-arrow side-arrow-right" type="button" data-action="side-next" aria-label="下一页"></button>
 
     <script src="./config.js?v=20260610-2"></script>
-    <script src="./assets/js/app.js?v=20260610-2"></script>
+    <script src="./assets/js/app.js?v=20260611-1"></script>
   </body>
 </html>

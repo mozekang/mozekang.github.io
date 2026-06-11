@@ -4,6 +4,7 @@
   const config = window.FEEDBACK_CONFIG || {};
   const nowIso = () => new Date().toISOString();
   const nowMs = () => Date.now();
+  const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
   const steps = ["intro", "identity", "q1", "q2", "q3", "open", "success"];
 
   const questionMeta = {
@@ -16,7 +17,7 @@
       id: "tune",
       type: "multi",
       exclusive: "没有什么明显问题",
-      options: ["刚到场时不知道做什么", "观影体验不行", "破冰问题不够好", "电影讨论不足", "整体聊的话题太浅", "主理人令我不舒服", "酒水 / 零食 / 空间舒适度可以更好", "结束得有点平淡", "没有什么明显问题"]
+      options: ["刚到场时不知道做什么", "破冰问题不够好", "电影讨论不足", "整体聊的话题太浅", "主理人令我不舒服", "酒 / 零食 / 空间舒适度可以更好", "结束得有点平淡", "其它", "没有什么明显问题"]
     },
     q3: {
       id: "returnIntent",
@@ -57,6 +58,7 @@
   };
 
   let isSubmitting = false;
+  let factorPanelTimer = null;
 
   document.addEventListener("DOMContentLoaded", init);
 
@@ -101,7 +103,12 @@
       const button = document.createElement("button");
       button.type = "button";
       button.className = "option-card";
-      button.textContent = label;
+      if (key === "q2" && label === "其它") {
+        button.classList.add("has-note");
+        button.innerHTML = `<span>${escapeHtml(label)}</span><span class="option-note">我会在今天联系你</span>`;
+      } else {
+        button.textContent = label;
+      }
       button.dataset.question = key;
       button.dataset.value = label;
       button.addEventListener("click", () => selectOption(key, label));
@@ -168,7 +175,11 @@
 
     if (meta.type === "single") {
       state.answers[key] = value;
-      document.querySelector("[data-role='factor-panel']").hidden = false;
+      if (key === "q3" && value === "很想再来") {
+        state.answers.q3Factors = [];
+        paintFactors();
+      }
+      updateFactorPanel();
     } else {
       const selected = state.answers[key];
       if (meta.exclusive && value === meta.exclusive) {
@@ -203,8 +214,34 @@
       button.classList.toggle("is-selected", selected);
     });
     if (key === "q3") {
-      document.querySelector("[data-role='factor-panel']").hidden = !state.answers.q3;
+      updateFactorPanel();
     }
+  }
+
+  function updateFactorPanel() {
+    const panel = document.querySelector("[data-role='factor-panel']");
+    const shouldShow = Boolean(state.answers.q3 && state.answers.q3 !== "很想再来");
+    if (factorPanelTimer) {
+      clearTimeout(factorPanelTimer);
+      factorPanelTimer = null;
+    }
+
+    if (shouldShow) {
+      panel.hidden = false;
+      requestAnimationFrame(() => {
+        panel.classList.remove("is-collapsing");
+        panel.classList.add("is-visible");
+      });
+      return;
+    }
+
+    panel.hidden = false;
+    panel.classList.remove("is-visible");
+    panel.classList.add("is-collapsing");
+    factorPanelTimer = setTimeout(() => {
+      panel.classList.remove("is-collapsing");
+      factorPanelTimer = null;
+    }, 240);
   }
 
   function paintFactors() {
@@ -222,8 +259,12 @@
   function showScreen(name, options = {}) {
     document.querySelectorAll(".screen").forEach((screen) => {
       screen.classList.toggle("is-active", screen.dataset.screen === name);
+      if (screen.dataset.screen === "success" && name !== "success") {
+        screen.classList.remove("is-ready");
+      }
     });
     state.currentStep = name;
+    if (name === "success") updateSuccessNote();
     if (!options.restore && questionMeta[name]) startQuestion(name);
     updateArrows(name);
   }
@@ -295,7 +336,7 @@
 
     if (!state.answers.moment.trim() && !state.hasPromptedMoment) {
       state.hasPromptedMoment = true;
-      setHint("open", "一个具体瞬间会非常有帮助，哪怕只有一个词。");
+      setHint("open", "一句话就会很有帮助，但不填也没关系，再点一下即可");
       return;
     }
 
@@ -305,20 +346,37 @@
     state.timings.total_duration_ms = nowMs() - state.timings.page_open_ms;
 
     isSubmitting = true;
+    showScreen("success");
+
+    const minimumProgress = wait(1250);
 
     try {
       const response = await fetch(config.submitEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(buildPayload())
-      });
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(buildPayload())
+        });
       if (!response.ok) throw new Error(`HTTP ${response.status}`);
-      showScreen("success");
+      await minimumProgress;
+      markSuccessReady();
     } catch (error) {
-      showScreen("success");
+      await minimumProgress;
+      markSuccessReady();
     } finally {
       isSubmitting = false;
     }
+  }
+
+  function markSuccessReady() {
+    const screen = document.querySelector("[data-screen='success']");
+    if (screen) screen.classList.add("is-ready");
+  }
+
+  function updateSuccessNote() {
+    const note = document.querySelector("[data-role='success-note']");
+    if (!note) return;
+    const identity = state.answers.identity;
+    note.textContent = identity && identity !== "匿名反馈" ? `${identity}，期待下次见` : "期待下次见";
   }
 
   function buildPayload() {
