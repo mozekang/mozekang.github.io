@@ -2,14 +2,7 @@
   "use strict";
 
   const config = window.ATTENTION_CONFIG || {};
-  const categories = [
-    { label: "即时快感", value: "即时快感", mood: "被即时快感牵走" },
-    { label: "正在掌控", value: "正在掌控", mood: "方向盘在我手里" },
-    { label: "生活维护", value: "生活维护", mood: "现实世界维护中" }
-  ];
   const state = {
-    category: categories[0].value,
-    mood: categories[0].mood,
     records: [],
     dailyGoalsByDate: {},
     followUp: null,
@@ -44,22 +37,8 @@
   function renderDate() {
     const now = new Date();
     $("#dayNumber").textContent = String(now.getDate()).padStart(2, "0");
-    $("#monthLabel").textContent = now.toLocaleDateString("zh-CN", { month: "long" });
     $("#weekdayLabel").textContent = now.toLocaleDateString("zh-CN", { weekday: "long" });
-  }
-
-  function renderCategories() {
-    const container = $("#categoryButtons");
-    container.innerHTML = "";
-    for (const item of categories) {
-      const button = document.createElement("button");
-      button.className = `segment${item.value === state.category ? " selected" : ""}`;
-      button.type = "button";
-      button.dataset.category = item.value;
-      button.dataset.mood = item.mood;
-      button.textContent = item.label;
-      container.appendChild(button);
-    }
+    $("#timeLabel").textContent = now.toLocaleTimeString("zh-CN", { hour: "2-digit", minute: "2-digit" });
   }
 
   function getGoals() {
@@ -74,6 +53,7 @@
     document.querySelectorAll(".goal-input").forEach((input, index) => {
       if (document.activeElement !== input) input.value = goals[index] || "";
     });
+    $("#goalPrompt").classList.toggle("hidden", goals.length > 0);
   }
 
   function timelinePoint(index, total, score) {
@@ -88,11 +68,29 @@
     };
   }
 
+  function timelineRecords() {
+    return state.records
+      .slice()
+      .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
+      .slice(-10);
+  }
+
+  function dotStyle(score, isLatest) {
+    const safeScore = Math.max(0, Math.min(100, Number(score) || 0));
+    const radius = 6 + Math.round((safeScore / 100) * 12);
+    let fill = "#050505";
+    if (safeScore >= 80) fill = "#ff6a21";
+    else if (safeScore >= 60) fill = "#58584f";
+    else if (safeScore >= 40) fill = "#242822";
+    return { radius: isLatest ? radius + 2 : radius, fill };
+  }
+
   function renderTimeline() {
     const container = $("#timelineCanvas");
-    const points = state.records.slice().sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+    const points = timelineRecords();
     if (!points.length) {
       container.innerHTML = '<div class="empty-timeline">还没有能量点</div>';
+      $("#timelineDetail").classList.add("hidden");
       return;
     }
     const width = Math.max(520, points.length * 82);
@@ -111,9 +109,20 @@
       return `<g class="day-divider"><line x1="${point.x}" y1="12" x2="${point.x}" y2="162"></line><text x="${point.x}" y="16">${escapeHtml(label)}</text></g>`;
     }).join("");
     const labels = plotted.map((point) => `<g class="timeline-label"><text x="${point.x}" y="176">${escapeHtml(localTime(point.timestamp))}</text></g>`).join("");
-    const dots = plotted.map((point) => `<g class="timeline-point${point.isLatest ? " latest" : ""}"><title>${escapeHtml(point.activity)}</title><circle cx="${point.x}" cy="${point.y}" r="${point.isLatest ? 17 : 15}"></circle><text x="${point.x}" y="${Math.max(20, point.y - 24)}">${point.energyScore ?? "--"}</text></g>`).join("");
+    const dots = plotted.map((point) => {
+      const style = dotStyle(point.energyScore, point.isLatest);
+      return `<g class="timeline-point${point.isLatest ? " latest" : ""}" data-id="${escapeHtml(point.id)}"><title>${escapeHtml(point.energyReason || point.activity)}</title><circle cx="${point.x}" cy="${point.y}" r="${style.radius}" fill="${style.fill}"></circle><text x="${point.x}" y="${Math.max(20, point.y - style.radius - 8)}">${point.energyScore ?? "--"}</text></g>`;
+    }).join("");
     container.innerHTML = `<svg class="timeline-svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}"><line x1="28" y1="162" x2="${width - 28}" y2="162" class="baseline"></line>${dividers}<path d="${pathData}" class="energy-line"></path>${labels}${dots}</svg>`;
     container.scrollLeft = container.scrollWidth;
+  }
+
+  function showTimelineDetail(recordId) {
+    const detail = $("#timelineDetail");
+    const record = state.records.find((item) => item.id === recordId);
+    if (!record) return;
+    detail.innerHTML = `<strong>${escapeHtml(record.energyScore ?? "--")}</strong><span>${escapeHtml(record.energyLabel || "已分析")}</span><span>${escapeHtml(localTime(record.timestamp))}</span><p>${escapeHtml(record.energyReason || "没有保存评分理由")}</p>`;
+    detail.classList.remove("hidden");
   }
 
   function renderStats() {
@@ -123,14 +132,31 @@
     const average = energyRecords.length
       ? Math.round(energyRecords.reduce((total, record) => total + Number(record.energyScore), 0) / energyRecords.length)
       : null;
-    $("#averageEnergy").textContent = average ?? "--";
-    $("#spentMinutes").textContent = todayRecords.filter((record) => record.category === "即时快感").length * 15;
-    $("#recordCount").textContent = todayRecords.length;
+    const sorted = todayRecords.slice().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    const latest = sorted[0];
+    const scored = sorted.filter((record) => Number.isFinite(Number(record.energyScore)));
+    const delta = scored.length >= 2 ? Number(scored[0].energyScore) - Number(scored[1].energyScore) : null;
+    const forwardCount = todayRecords.filter((record) => Number(record.energyScore) >= 60).length;
+    let trend = "--";
+    let trendClass = "";
+    if (delta !== null) {
+      if (Math.abs(delta) < 5) {
+        trend = "→";
+        trendClass = "trend-flat";
+      } else {
+        trend = `${delta > 0 ? "↑" : "↓"}${Math.abs(delta)}`;
+        trendClass = delta > 0 ? "trend-up" : "trend-down";
+      }
+    }
+    $("#currentEnergy").textContent = Number.isFinite(Number(latest?.energyScore)) ? latest.energyScore : "--";
+    $("#trendValue").textContent = trend;
+    $("#trendValue").className = trendClass;
+    $("#forwardCount").textContent = forwardCount;
   }
 
   function renderRecent() {
     const recent = $("#recentList");
-    const items = state.records.slice().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)).slice(0, 8);
+    const items = state.records.slice().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     recent.innerHTML = "";
     if (!items.length) {
       recent.innerHTML = '<div class="recent-empty">还没有记录。</div>';
@@ -139,7 +165,8 @@
     for (const record of items) {
       const item = document.createElement("article");
       item.className = "recent-item";
-      item.innerHTML = `<time>${localTime(record.timestamp)}</time><strong>${escapeHtml(record.energyScore ?? "--")}</strong><span>${escapeHtml(record.energyLabel || record.category)}</span><p>${escapeHtml(record.activity)}</p>`;
+      item.title = record.energyReason || "";
+      item.innerHTML = `<time>${localTime(record.timestamp)}</time><strong>${escapeHtml(record.energyScore ?? "--")}</strong><span>${escapeHtml(record.energyLabel || "已记录")}</span><p>${escapeHtml(record.activity)}</p>`;
       recent.appendChild(item);
     }
   }
@@ -171,6 +198,7 @@
       renderAll();
     } catch {
       $("#syncStatus").textContent = "同步失败";
+      renderAll();
     }
   }
 
@@ -201,12 +229,7 @@
     try {
       if (!state.followUp && state.followUpCheckedFor !== activity) {
         $("#saveLabel").textContent = "分析中";
-        const followUp = await api("maybeFollowUp", {
-          activity,
-          category: state.category,
-          mood: state.mood,
-          goals: getGoals()
-        });
+        const followUp = await api("maybeFollowUp", { activity, goals: getGoals() });
         if (followUp.needsFollowUp && followUp.question) {
           state.followUp = { question: followUp.question };
           state.followUpCheckedFor = activity;
@@ -220,8 +243,6 @@
       $("#saveLabel").textContent = "分析中";
       const data = await api("addRecord", {
         activity: buildActivityWithFollowUp(activity),
-        category: state.category,
-        mood: state.mood,
         goals: getGoals()
       });
       state.records = Array.isArray(data.records) ? data.records : state.records;
@@ -236,21 +257,36 @@
   }
 
   function bindEvents() {
-    $("#categoryButtons").addEventListener("click", (event) => {
-      const button = event.target.closest(".segment");
-      if (!button) return;
-      state.category = button.dataset.category;
-      state.mood = button.dataset.mood;
-      renderCategories();
-    });
     $("#activityInput").addEventListener("input", resetFollowUp);
+    $("#activityInput").addEventListener("keydown", (event) => {
+      if (event.isComposing) return;
+      if (event.key === "Enter") {
+        event.preventDefault();
+        saveRecord();
+      }
+    });
     $("#saveButton").addEventListener("click", saveRecord);
+    bindTimelineDrag();
+    $("#openRecordsButton").addEventListener("click", () => document.body.classList.add("records-open"));
+    $("#backToMainButton").addEventListener("click", () => document.body.classList.remove("records-open"));
+    $("#scoreGuideButton").addEventListener("click", () => $("#scoreGuide").classList.remove("hidden"));
+    $("#closeScoreGuide").addEventListener("click", () => $("#scoreGuide").classList.add("hidden"));
+    $("#scoreGuide").addEventListener("click", (event) => {
+      if (event.target.id === "scoreGuide") $("#scoreGuide").classList.add("hidden");
+    });
     $("#quickAnswers").addEventListener("click", (event) => {
       const button = event.target.closest("button[data-answer]");
       if (!button) return;
       const input = $("#followUpInput");
       input.value = input.value ? `${input.value}，${button.dataset.answer}` : button.dataset.answer;
       input.focus();
+    });
+    $("#followUpInput").addEventListener("keydown", (event) => {
+      if (event.isComposing) return;
+      if (event.key === "Enter") {
+        event.preventDefault();
+        saveRecord();
+      }
     });
     document.querySelectorAll(".goal-input").forEach((input) => {
       input.addEventListener("blur", async () => {
@@ -266,9 +302,40 @@
     });
   }
 
+  function bindTimelineDrag() {
+    const container = $("#timelineCanvas");
+    let drag = null;
+    container.addEventListener("pointerdown", (event) => {
+      if (event.button !== 0) return;
+      drag = { pointerId: event.pointerId, x: event.clientX, scrollLeft: container.scrollLeft, moved: false };
+      container.classList.add("dragging");
+      container.setPointerCapture(event.pointerId);
+    });
+    container.addEventListener("pointermove", (event) => {
+      if (!drag) return;
+      const dx = event.clientX - drag.x;
+      if (Math.abs(dx) > 3) drag.moved = true;
+      container.scrollLeft = drag.scrollLeft - dx;
+    });
+    container.addEventListener("pointerup", (event) => {
+      const finished = drag;
+      drag = null;
+      container.classList.remove("dragging");
+      if (!finished) return;
+      container.releasePointerCapture(event.pointerId);
+      if (finished.moved) return;
+      const point = event.target.closest(".timeline-point");
+      if (point?.dataset.id) showTimelineDetail(point.dataset.id);
+    });
+    container.addEventListener("pointercancel", () => {
+      drag = null;
+      container.classList.remove("dragging");
+    });
+  }
+
   function init() {
     renderDate();
-    renderCategories();
+    setInterval(renderDate, 30000);
     bindEvents();
     pull();
   }
