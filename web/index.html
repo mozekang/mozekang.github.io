@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在做什么</title>
+    <link rel="stylesheet" href="./styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="timeline-section">
+        <div class="date-lockup">
+          <strong id="dayNumber">--</strong>
+          <div>
+            <span id="monthLabel">----</span>
+            <span id="weekdayLabel">---</span>
+          </div>
+        </div>
+
+        <section class="goals-panel">
+          <div class="goals-title">今日核心目标</div>
+          <div id="goalInputs" class="goal-inputs">
+            <input class="goal-input" type="text" autocomplete="off" maxlength="80" placeholder="核心目标 1">
+            <input class="goal-input" type="text" autocomplete="off" maxlength="80" placeholder="核心目标 2">
+            <input class="goal-input" type="text" autocomplete="off" maxlength="80" placeholder="核心目标 3">
+          </div>
+        </section>
+
+        <div id="timelineCanvas" class="timeline-canvas" aria-label="能量走势"></div>
+      </section>
+
+      <section class="input-section">
+        <label for="activityInput">现在在做什么？</label>
+        <textarea id="activityInput" autocomplete="off" rows="3" placeholder="例如：用 Codex 做工具，但要确认是否核心目标"></textarea>
+        <div id="followUpBox" class="follow-up-box hidden">
+          <label id="followUpQuestion" for="followUpInput"></label>
+          <input id="followUpInput" type="text" autocomplete="off">
+          <div id="quickAnswers" class="quick-answers">
+            <button type="button" data-answer="单任务">单任务</button>
+            <button type="button" data-answer="有干扰">有干扰</button>
+            <button type="button" data-answer="不核心">不核心</button>
+            <button type="button" data-answer="有明确产出">有明确产出</button>
+          </div>
+        </div>
+
+        <div class="controls-row">
+          <div id="categoryButtons" class="segmented" role="radiogroup" aria-label="状态"></div>
+          <button id="saveButton" class="primary-button"><span id="saveLabel">记录</span></button>
+        </div>
+      </section>
+
+      <section class="summary-section">
+        <article class="metric"><span>平均能量</span><strong id="averageEnergy">--</strong></article>
+        <article class="metric"><span>即时快感</span><strong id="spentMinutes">0</strong></article>
+        <article class="metric"><span>记录</span><strong id="recordCount">0</strong></article>
+      </section>
+
+      <section class="records-section">
+        <div class="records-heading"><h2>最近记录</h2><span id="syncStatus"></span></div>
+        <div id="recentList" class="recent-list"></div>
+      </section>
+    </main>
+    <script src="./config.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
