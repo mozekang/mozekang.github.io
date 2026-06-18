@@ -12,29 +12,31 @@
         <div class="date-lockup">
           <strong id="dayNumber">--</strong>
           <div>
-            <span id="monthLabel">----</span>
             <span id="weekdayLabel">---</span>
+            <span id="timeLabel">--:--</span>
           </div>
         </div>
 
         <section class="goals-panel">
           <div class="goals-title">今日核心目标</div>
           <div id="goalInputs" class="goal-inputs">
-            <input class="goal-input" type="text" autocomplete="off" maxlength="80" placeholder="核心目标 1">
-            <input class="goal-input" type="text" autocomplete="off" maxlength="80" placeholder="核心目标 2">
-            <input class="goal-input" type="text" autocomplete="off" maxlength="80" placeholder="核心目标 3">
+            <input class="goal-input" type="text" autocomplete="off" maxlength="80" placeholder="目标 1">
+            <input class="goal-input" type="text" autocomplete="off" maxlength="80" placeholder="目标 2">
+            <input class="goal-input" type="text" autocomplete="off" maxlength="80" placeholder="目标 3">
           </div>
         </section>
+        <div id="goalPrompt" class="goal-prompt hidden">新的一天，先定今天的方向。</div>
 
         <div id="timelineCanvas" class="timeline-canvas" aria-label="能量走势"></div>
+        <div id="timelineDetail" class="timeline-detail hidden"></div>
       </section>
 
       <section class="input-section">
-        <label for="activityInput">现在在做什么？</label>
-        <textarea id="activityInput" autocomplete="off" rows="3" placeholder="例如：用 Codex 做工具，但要确认是否核心目标"></textarea>
+        <input id="activityInput" class="activity-input" type="text" autocomplete="off" maxlength="120" aria-label="快速记录" placeholder="正在做什么？一句话就够。">
+        <button id="saveButton" class="primary-button"><span id="saveLabel">记录</span></button>
         <div id="followUpBox" class="follow-up-box hidden">
           <label id="followUpQuestion" for="followUpInput"></label>
-          <input id="followUpInput" type="text" autocomplete="off">
+          <input id="followUpInput" type="text" autocomplete="off" maxlength="80">
           <div id="quickAnswers" class="quick-answers">
             <button type="button" data-answer="单任务">单任务</button>
             <button type="button" data-answer="有干扰">有干扰</button>
@@ -42,23 +44,43 @@
             <button type="button" data-answer="有明确产出">有明确产出</button>
           </div>
         </div>
+      </section>
 
-        <div class="controls-row">
-          <div id="categoryButtons" class="segmented" role="radiogroup" aria-label="状态"></div>
-          <button id="saveButton" class="primary-button"><span id="saveLabel">记录</span></button>
+      <section id="mainView" class="summary-section">
+        <article class="metric metric-current">
+          <button id="scoreGuideButton" class="score-guide-button" type="button">i</button>
+          <span>当前</span>
+          <strong id="currentEnergy">--</strong>
+        </article>
+        <article class="metric metric-trend">
+          <span>趋势</span>
+          <strong id="trendValue">--</strong>
+        </article>
+        <button id="openRecordsButton" class="metric metric-forward" type="button">
+          <span>推进</span>
+          <strong id="forwardCount">0</strong>
+        </button>
+      </section>
+
+      <section id="recordsView" class="records-section hidden">
+        <div class="records-heading">
+          <button id="backToMainButton" class="secondary-button" type="button">返回</button>
+          <h2>过往记录</h2>
+          <span id="syncStatus"></span>
         </div>
-      </section>
-
-      <section class="summary-section">
-        <article class="metric"><span>平均能量</span><strong id="averageEnergy">--</strong></article>
-        <article class="metric"><span>即时快感</span><strong id="spentMinutes">0</strong></article>
-        <article class="metric"><span>记录</span><strong id="recordCount">0</strong></article>
-      </section>
-
-      <section class="records-section">
-        <div class="records-heading"><h2>最近记录</h2><span id="syncStatus"></span></div>
         <div id="recentList" class="recent-list"></div>
       </section>
+
+      <div id="scoreGuide" class="score-guide hidden">
+        <div class="score-guide-panel">
+          <button id="closeScoreGuide" class="guide-close" aria-label="关闭评分说明">×</button>
+          <h2>评分标准</h2>
+          <p><strong>60 分</strong>：方向明确，继续这样做，生活会稳定往前走。</p>
+          <p><strong>80 分</strong>：正在突破舒适区，持续一段时间会升级你的结构。</p>
+          <p><strong>100 分</strong>：接近当前极限，是少数能改变生命层级的状态。</p>
+          <p><strong>低于 40 分</strong>：大概率在消耗、逃避或失控，需要尽快换轨。</p>
+        </div>
+      </div>
     </main>
     <script src="./config.js"></script>
     <script src="./app.js"></script>
