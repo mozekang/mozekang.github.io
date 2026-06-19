@@ -4,12 +4,13 @@ window.FEEDBACK_CONFIG = {
   movieName: "社交网络",
   submitEndpoint: "https://blessing-road-281-d7dyi4d307f11b-1259236999.ap-shanghai.app.tcloudbase.com/submitFeedback",
   identities: [
-    "瓜皮",
-    "鱼七",
+    "momo",
+    "Fibi",
     "vc",
-    "阿瑜",
-    "阿然",
-    "泽康"
+    "锐",
+    "VV",
+    "莹",
+"Lin"
   ],
   includeAnonymous: true
 };
