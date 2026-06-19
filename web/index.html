@@ -2,13 +2,19 @@
 <html lang="zh-CN">
   <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#ece9e3">
     <title>在做什么</title>
-    <link rel="stylesheet" href="./styles.css">
+    <style>
+      html,body{width:100%;height:100%;margin:0;overflow:hidden;background:#ece9e3}
+      .shell{box-sizing:border-box;width:min(760px,100%);height:100dvh;max-width:100vw;margin:0 auto;overflow:hidden}
+      @media(max-width:600px){.shell{width:100%;height:100svh;max-width:100vw}}
+    </style>
+    <link rel="stylesheet" href="./styles.css?v=20260619-2">
   </head>
   <body>
     <main class="shell">
-      <section class="timeline-section">
+      <section class="top-section">
         <div class="date-lockup">
           <strong id="dayNumber">--</strong>
           <div>
@@ -18,48 +24,39 @@
         </div>
 
         <section class="goals-panel">
-          <div class="goals-title">今日核心目标</div>
-          <div id="goalInputs" class="goal-inputs">
+          <div id="goalInputs" class="goal-inputs" aria-label="今日目标">
             <input class="goal-input" type="text" autocomplete="off" maxlength="80" placeholder="目标 1">
             <input class="goal-input" type="text" autocomplete="off" maxlength="80" placeholder="目标 2">
             <input class="goal-input" type="text" autocomplete="off" maxlength="80" placeholder="目标 3">
           </div>
         </section>
         <div id="goalPrompt" class="goal-prompt hidden">新的一天，先定今天的方向。</div>
-
-        <div id="timelineCanvas" class="timeline-canvas" aria-label="能量走势"></div>
-        <div id="timelineDetail" class="timeline-detail hidden"></div>
       </section>
 
       <section class="input-section">
         <input id="activityInput" class="activity-input" type="text" autocomplete="off" maxlength="120" aria-label="快速记录" placeholder="正在做什么？一句话就够。">
-        <button id="saveButton" class="primary-button"><span id="saveLabel">记录</span></button>
-        <div id="followUpBox" class="follow-up-box hidden">
-          <label id="followUpQuestion" for="followUpInput"></label>
-          <input id="followUpInput" type="text" autocomplete="off" maxlength="80">
-          <div id="quickAnswers" class="quick-answers">
-            <button type="button" data-answer="单任务">单任务</button>
-            <button type="button" data-answer="有干扰">有干扰</button>
-            <button type="button" data-answer="不核心">不核心</button>
-            <button type="button" data-answer="有明确产出">有明确产出</button>
-          </div>
-        </div>
+        <button id="saveButton" class="primary-button" aria-label="保存记录"><span id="saveLabel">→</span></button>
       </section>
 
-      <section id="mainView" class="summary-section">
-        <article class="metric metric-current">
-          <button id="scoreGuideButton" class="score-guide-button" type="button">i</button>
-          <span>当前</span>
-          <strong id="currentEnergy">--</strong>
-        </article>
-        <article class="metric metric-trend">
-          <span>趋势</span>
-          <strong id="trendValue">--</strong>
-        </article>
-        <button id="openRecordsButton" class="metric metric-forward" type="button">
-          <span>推进</span>
-          <strong id="forwardCount">0</strong>
-        </button>
+      <section class="lower-section">
+        <div id="timelineCanvas" class="timeline-canvas" aria-label="能量走势"></div>
+        <div id="timelineDetail" class="timeline-detail hidden"></div>
+
+        <section id="mainView" class="summary-section">
+          <article class="metric metric-current">
+            <button id="scoreGuideButton" class="score-guide-button" type="button">i</button>
+            <span>当前</span>
+            <strong id="currentEnergy">--</strong>
+          </article>
+          <article class="metric metric-trend">
+            <span>趋势</span>
+            <strong id="trendValue">--</strong>
+          </article>
+          <button id="openRecordsButton" class="metric metric-forward" type="button">
+            <span>推进</span>
+            <strong id="forwardCount">0</strong>
+          </button>
+        </section>
       </section>
 
       <section id="recordsView" class="records-section hidden">
@@ -82,7 +79,7 @@
         </div>
       </div>
     </main>
-    <script src="./config.js"></script>
-    <script src="./app.js"></script>
+    <script src="./config.js?v=20260619-2"></script>
+    <script src="./app.js?v=20260619-2"></script>
   </body>
 </html>

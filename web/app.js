@@ -5,8 +5,6 @@
   const state = {
     records: [],
     dailyGoalsByDate: {},
-    followUp: null,
-    followUpCheckedFor: "",
     deviceId: localStorage.getItem("attentionDeviceId") || `web-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`
   };
   localStorage.setItem("attentionDeviceId", state.deviceId);
@@ -59,9 +57,9 @@
   function timelinePoint(index, total, score) {
     const width = Math.max(520, total * 82);
     const paddingX = 42;
-    const paddingY = 28;
+    const paddingY = 22;
     const innerWidth = width - paddingX * 2;
-    const innerHeight = 190 - paddingY * 2;
+    const innerHeight = 166 - paddingY * 2;
     return {
       x: total <= 1 ? width / 2 : paddingX + (index / (total - 1)) * innerWidth,
       y: paddingY + (1 - score / 100) * innerHeight
@@ -70,6 +68,7 @@
 
   function timelineRecords() {
     return state.records
+      .filter((record) => Number.isFinite(Number(record.energyScore)))
       .slice()
       .sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp))
       .slice(-10);
@@ -94,7 +93,7 @@
       return;
     }
     const width = Math.max(520, points.length * 82);
-    const height = 190;
+    const height = 170;
     const plotted = points.map((point, index) => ({
       ...point,
       ...timelinePoint(index, points.length, Number(point.energyScore) || 50),
@@ -106,14 +105,14 @@
       const previous = index > 0 ? new Date(plotted[index - 1].timestamp) : null;
       if (index !== 0 && date.toDateString() === previous.toDateString()) return "";
       const label = date.toLocaleDateString("zh-CN", { month: "2-digit", day: "2-digit" });
-      return `<g class="day-divider"><line x1="${point.x}" y1="12" x2="${point.x}" y2="162"></line><text x="${point.x}" y="16">${escapeHtml(label)}</text></g>`;
+      return `<g class="day-divider"><line x1="${point.x}" y1="10" x2="${point.x}" y2="142"></line><text x="${point.x}" y="15">${escapeHtml(label)}</text></g>`;
     }).join("");
-    const labels = plotted.map((point) => `<g class="timeline-label"><text x="${point.x}" y="176">${escapeHtml(localTime(point.timestamp))}</text></g>`).join("");
+    const labels = plotted.map((point) => `<g class="timeline-label"><text x="${point.x}" y="158">${escapeHtml(localTime(point.timestamp))}</text></g>`).join("");
     const dots = plotted.map((point) => {
       const style = dotStyle(point.energyScore, point.isLatest);
-      return `<g class="timeline-point${point.isLatest ? " latest" : ""}" data-id="${escapeHtml(point.id)}"><title>${escapeHtml(point.energyReason || point.activity)}</title><circle cx="${point.x}" cy="${point.y}" r="${style.radius}" fill="${style.fill}"></circle><text x="${point.x}" y="${Math.max(20, point.y - style.radius - 8)}">${point.energyScore ?? "--"}</text></g>`;
+      return `<g class="timeline-point${point.isLatest ? " latest" : ""}" data-id="${escapeHtml(point.id)}"><title>${escapeHtml(point.energyReason || point.activity)}</title><circle cx="${point.x}" cy="${point.y}" r="${style.radius}" fill="${style.fill}"></circle><text x="${point.x}" y="${Math.max(16, point.y - style.radius - 8)}">${point.energyScore ?? "--"}</text></g>`;
     }).join("");
-    container.innerHTML = `<svg class="timeline-svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}"><line x1="28" y1="162" x2="${width - 28}" y2="162" class="baseline"></line>${dividers}<path d="${pathData}" class="energy-line"></path>${labels}${dots}</svg>`;
+    container.innerHTML = `<svg class="timeline-svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}"><line x1="28" y1="142" x2="${width - 28}" y2="142" class="baseline"></line>${dividers}<path d="${pathData}" class="energy-line"></path>${labels}${dots}</svg>`;
     container.scrollLeft = container.scrollWidth;
   }
 
@@ -121,17 +120,13 @@
     const detail = $("#timelineDetail");
     const record = state.records.find((item) => item.id === recordId);
     if (!record) return;
-    detail.innerHTML = `<strong>${escapeHtml(record.energyScore ?? "--")}</strong><span>${escapeHtml(record.energyLabel || "已分析")}</span><span>${escapeHtml(localTime(record.timestamp))}</span><p>${escapeHtml(record.energyReason || "没有保存评分理由")}</p>`;
+    detail.innerHTML = `<strong>${escapeHtml(record.energyScore ?? "--")}</strong><span>${escapeHtml(record.energyLabel || "已分析")}</span><span>${escapeHtml(localTime(record.timestamp))}</span><p>${escapeHtml(record.energyReason || "没有保存评分原因")}</p>`;
     detail.classList.remove("hidden");
   }
 
   function renderStats() {
     const today = todayKey();
     const todayRecords = state.records.filter((record) => todayKey(new Date(record.timestamp)) === today);
-    const energyRecords = todayRecords.filter((record) => Number.isFinite(Number(record.energyScore)));
-    const average = energyRecords.length
-      ? Math.round(energyRecords.reduce((total, record) => total + Number(record.energyScore), 0) / energyRecords.length)
-      : null;
     const sorted = todayRecords.slice().sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
     const latest = sorted[0];
     const scored = sorted.filter((record) => Number.isFinite(Number(record.energyScore)));
@@ -202,21 +197,6 @@
     }
   }
 
-  function resetFollowUp() {
-    state.followUp = null;
-    state.followUpCheckedFor = "";
-    $("#followUpBox").classList.add("hidden");
-    $("#followUpQuestion").textContent = "";
-    $("#followUpInput").value = "";
-    $("#saveLabel").textContent = "记录";
-  }
-
-  function buildActivityWithFollowUp(activity) {
-    if (!state.followUp) return activity;
-    const answer = $("#followUpInput").value.trim();
-    return answer ? `${activity}\n追问：${state.followUp.question}\n回答：${answer}` : activity;
-  }
-
   async function saveRecord() {
     const input = $("#activityInput");
     const activity = input.value.trim();
@@ -227,37 +207,25 @@
 
     $("#saveButton").disabled = true;
     try {
-      if (!state.followUp && state.followUpCheckedFor !== activity) {
-        $("#saveLabel").textContent = "分析中";
-        const followUp = await api("maybeFollowUp", { activity, goals: getGoals() });
-        if (followUp.needsFollowUp && followUp.question) {
-          state.followUp = { question: followUp.question };
-          state.followUpCheckedFor = activity;
-          $("#followUpQuestion").textContent = followUp.question;
-          $("#followUpBox").classList.remove("hidden");
-          $("#saveLabel").textContent = "确认记录";
-          $("#followUpInput").focus();
-          return;
-        }
-      }
-      $("#saveLabel").textContent = "分析中";
+      $("#saveLabel").textContent = "…";
       const data = await api("addRecord", {
-        activity: buildActivityWithFollowUp(activity),
+        activity,
         goals: getGoals()
       });
-      state.records = Array.isArray(data.records) ? data.records : state.records;
-      state.dailyGoalsByDate = data.dailyGoalsByDate || state.dailyGoalsByDate;
+      if (data.record) {
+        state.records = state.records.filter((record) => record.id !== data.record.id);
+        state.records.push(data.record);
+      }
+      $("#syncStatus").textContent = "已同步 · 待本地分析";
       input.value = "";
-      resetFollowUp();
       renderAll();
     } finally {
       $("#saveButton").disabled = false;
-      $("#saveLabel").textContent = state.followUp ? "确认记录" : "记录";
+      $("#saveLabel").textContent = "→";
     }
   }
 
   function bindEvents() {
-    $("#activityInput").addEventListener("input", resetFollowUp);
     $("#activityInput").addEventListener("keydown", (event) => {
       if (event.isComposing) return;
       if (event.key === "Enter") {
@@ -273,20 +241,6 @@
     $("#closeScoreGuide").addEventListener("click", () => $("#scoreGuide").classList.add("hidden"));
     $("#scoreGuide").addEventListener("click", (event) => {
       if (event.target.id === "scoreGuide") $("#scoreGuide").classList.add("hidden");
-    });
-    $("#quickAnswers").addEventListener("click", (event) => {
-      const button = event.target.closest("button[data-answer]");
-      if (!button) return;
-      const input = $("#followUpInput");
-      input.value = input.value ? `${input.value}，${button.dataset.answer}` : button.dataset.answer;
-      input.focus();
-    });
-    $("#followUpInput").addEventListener("keydown", (event) => {
-      if (event.isComposing) return;
-      if (event.key === "Enter") {
-        event.preventDefault();
-        saveRecord();
-      }
     });
     document.querySelectorAll(".goal-input").forEach((input) => {
       input.addEventListener("blur", async () => {
@@ -307,7 +261,14 @@
     let drag = null;
     container.addEventListener("pointerdown", (event) => {
       if (event.button !== 0) return;
-      drag = { pointerId: event.pointerId, x: event.clientX, scrollLeft: container.scrollLeft, moved: false };
+      const point = event.target.closest(".timeline-point");
+      drag = {
+        pointerId: event.pointerId,
+        x: event.clientX,
+        scrollLeft: container.scrollLeft,
+        moved: false,
+        recordId: point?.dataset.id || ""
+      };
       container.classList.add("dragging");
       container.setPointerCapture(event.pointerId);
     });
@@ -324,8 +285,7 @@
       if (!finished) return;
       container.releasePointerCapture(event.pointerId);
       if (finished.moved) return;
-      const point = event.target.closest(".timeline-point");
-      if (point?.dataset.id) showTimelineDetail(point.dataset.id);
+      if (finished.recordId) showTimelineDetail(finished.recordId);
     });
     container.addEventListener("pointercancel", () => {
       drag = null;
@@ -338,5 +298,6 @@
     setInterval(renderDate, 30000);
     bindEvents();
     pull();
+    setInterval(pull, 30000);
   }
 })();
